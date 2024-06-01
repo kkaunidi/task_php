@@ -7295,6 +7295,26 @@ console.log(sub);*/
 
 //следует использовать специальное свойство dataset, после которого через точку пишется имя атрибута без data-. 
 //Например, если наш атрибут называется data-test, то для обращения к нему мы будем писать elem.dataset.test
+// Выведем на экран значение его атрибута data-num:
+// let elem = document.querySelector('#elem');
+// console.log(elem.dataset.num); // выведет 1000
+// А теперь присвоим этому атрибуту другое значение:
+// let elem = document.querySelector('#elem');
+// elem.dataset.num = 123;
+
+// let elem = document.querySelector('#elem');
+// console.log(elem.dataset.name);
+
+//Дан следующий код:
+//Сделайте так, чтобы по клику на див в конец его текста добавилось содержимое его атрибута data-text.
+let elem = document.querySelector('#elem');
+elem.addEventListener('click', function(){
+	elem.innerHTML = elem.textContent + elem.dataset.text;
+})
+
+
+
+
 
 
 
