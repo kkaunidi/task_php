@@ -9479,3 +9479,1331 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $month = require 'month.php';
 print_r($month);
 ?>
+
+<!-- 318 Подготовительные манипуляции для работы с SQL в PHP -->
+
+<!-- Давайте теперь научимся работать с базами данных через PHP. 
+Для этого прежде всего необходимо установить соединение с сервером базы данных.
+Делается это с помощью функции mysql_connect, которая принимает 3 параметра: имя хоста (сервера), 
+имя пользователя, под которым мы работаем с базой и пароль для этого пользователя.
+Если вы работаете на своем компьютере, то это будут localhost, root и пароль в виде пустой строки 
+(на некоторых серверах он тоже может быть root). Если ваша база данных в интернете - то эти данные выдает вам хостинг.
+Итак, давайте установим соединение с базой данных: -->
+
+<!-- <?php
+	$host = 'localhost'; // имя хоста
+	$user = 'root';      // имя пользователя
+	$pass = '';          // пароль
+	$name = 'mydb';      // имя базы данных
+	
+	$link = mysqli_connect($host, $user, $pass, $name);
+?> -->
+
+<!-- Если указанные нами доступы правильные, то установится соединение к базе данных. 
+При этом в переменную $link запишется специальный объект соединения, 
+который мы будем использовать в дальнейшем для всех обращений к нашей базе данных. -->
+
+<!-- 319 Отправка запросов к базе данных -->
+
+<!-- После соединения с базой к ней можно отправлять запросы. Это делается с помощью функции mysqli_query. 
+Первым параметром эта функция принимает принимает переменную, в которую мы записали результат mysqli_connect, 
+а вторым - строку с SQL запросом.
+К примеру, выполним запрос, который достанет все записи из таблицы users: -->
+
+<!-- <?php
+	$res = mysqli_query($link, 'SELECT * FROM users');
+    print_r($res);
+?> -->
+<!-- 
+Текст запроса не обязательно писать прямо в параметре функции mysqli_query. Давайте вынесем его в переменную: -->
+<!-- <?php
+	$query = 'SELECT * FROM users';
+	$res = mysqli_query($link, $query);
+    print_r($res);
+
+?> -->
+
+<!-- 320 Поиск ошибок в базе данных -->
+
+<!-- Как вы уже знаете, в PHP вывод ошибок на экран включается с помощью функции error_reporting. 
+Эта функция, однако, не включает вывод ошибок, допущенных в тексте SQL запроса.
+Чтобы вывести ошибки SQL команд, следует пользоваться функцией mysqli_error, 
+которую необходимо добавлять к каждому запросу к БД, вот так:
+Пока не будем разбираться с тем, как работает эта конструкция. 
+Просто добавляйте ее и, в случае ошибочного SQL запроса, вы увидите сообщение об этом в окне браузера. -->
+
+<!-- <?php
+	$query = 'SELECT * FROM users';
+	$res = mysqli_query($link, $query) or die(mysqli_error($link));
+?> -->
+
+<!-- 321 Тестирование работоспособности базы данных -->
+
+<!-- Давайте теперь напишем тестовый код, который вы сможете запустить у себя, 
+чтобы убедится в том, что у вас все подключилось верно.
+Для начала убедитесь, что у вас есть база данных mydb, а в ней таблица users, заполненная какими-нибудь данными.
+Затем запустите у себя следующий код: 
+Если на экране нет ошибок и вы видите результат var_dump - значит все хорошо. 
+Если же есть какие-то ошибки - исправьте их и попробуйте снова.-->
+
+<!-- <?php
+	$host = 'localhost'; // имя хоста
+	$user = 'root';      // имя пользователя
+	$pass = '';          // пароль
+	$name = 'mydb';      // имя базы данных
+	
+	$link = mysqli_connect($host, $user, $pass, $name);
+	
+	$query = 'SELECT * FROM users';
+	$res = mysqli_query($link, $query) or die(mysqli_error($link));
+	var_dump($res);
+?> -->
+
+<!-- 322 Проблемы с кодировками при работе с SQL в PHP -->
+
+<!-- Как правило, если не сделать дополнительных действий, 
+то русский текст при получении из базы данных будет выводится абракадаброй или вопросиками. 
+Для избежания таких проблем следует описанных ниже правил.
+
+Правило 1
+База данных и таблицы в ней должны быть в кодировке utf8_general_ci.
+
+Правило 2
+Сам PHP файл должен быть в кодировке utf8.
+
+Правило 3
+В начале PHP файла должен быть следующий HTML тег:
+
+<meta charset="utf-8">
+Правило 4
+На всякий случай сразу после команды mysqli_connect добавьте такое запрос: -->
+
+<!-- <?php
+	mysqli_query($link, "SET NAMES 'utf8'");
+?>  -->
+
+<!-- 323 Дополненный тестовый код для проверки работоспособности -->
+<!-- 
+В предыдущем уроке я привел вам тестовый код для проверки общей работоспособности. 
+Давайте дополним его с учетом описанных правил для работы с кодировками: -->
+
+<meta charset="utf-8">
+<!-- <?php
+	$host = 'localhost'; // имя хоста
+	$user = 'root';      // имя пользователя
+	$pass = '';          // пароль
+	$name = 'mydb';      // имя базы данных
+	
+	$link = mysqli_connect($host, $user, $pass, $name);
+	mysqli_query($link, "SET NAMES 'utf8'");
+	
+	$query = 'SELECT * FROM users';
+	$res = mysqli_query($link, $query) or die(mysqli_error($link));
+	//var_dump($res);
+?> -->
+<!-- В следующих уроках я для краткости не буду приводить весь этот код, 
+а буду показывать только код отправки запросов. Но вы имейте ввиду, что у вас должен быть полный код. -->
+
+<!-- 324 Получение результата при SQL запросе в PHP -->
+<!-- 
+В предыдущем уроке мы сделали тестовый код. Напомню его существенную часть, выполняющую запрос к базе:
+Для того, чтобы получить результат в привычной нам форме, необходимо воспользоваться функцией mysqli_fetch_assoc, 
+извлекающей из результата одну строку.
+Давайте попробуем: -->
+<!-- <?php
+	//$row = mysqli_fetch_assoc($res);
+	//var_dump($row);
+?> -->
+
+<!-- <?php
+	//$row1 = mysqli_fetch_assoc($res);
+	//var_dump($row1); // работник номер 1
+	
+	//$row2 = mysqli_fetch_assoc($res);
+	//var_dump($row2); // работник номер 2
+	
+	//$row3 = mysqli_fetch_assoc($res);
+	//var_dump($row3); // работник номер 3
+	
+	//$row4 = mysqli_fetch_assoc($res);
+	//var_dump($row4); // работник номер 4
+	
+	//$row5 = mysqli_fetch_assoc($res);
+	//var_dump($row5); // работник номер 5
+	
+	//$row6 = mysqli_fetch_assoc($res);
+	//var_dump($row6); // работник номер 6
+	
+	//$row7 = mysqli_fetch_assoc($res);
+	//var_dump($row7); // выведет NULL - работники кончились
+?> -->
+
+<!-- 325 Получение результата в виде массива при SQL запросе в PHP -->
+
+<!-- При считывании по рядам можно не выводить каждого работника, а записывать их в какой-нибудь массив: -->
+
+<!-- <?php
+$data=[];
+	//$row1 = mysqli_fetch_assoc($res);
+	//$data[] = $row1;
+	//$row2 = mysqli_fetch_assoc($res);
+	//$data[] = $row2;
+	//$row3 = mysqli_fetch_assoc($res);
+	//$data[] = $row3;
+	//$row4 = mysqli_fetch_assoc($res);
+	//$data[] = $row4;
+	//$row5 = mysqli_fetch_assoc($res);
+	//$data[] = $row5;
+	//$row6 = mysqli_fetch_assoc($res);
+	//$data[] = $row6;
+    //echo'<pre>';
+    //print_r($data);
+    //echo'<pre>';
+?> -->
+
+<!-- 326 Формирование массива в цикле при SQL запросе в PHP -->
+
+<!-- Конечно же, в ручную перебирать всех работников не очень удобно. 
+Пусть лучше за нас это сделает цикл: 
+-->
+
+<!-- <?php
+	//for ($data = []; $row = mysqli_fetch_assoc($res); $data[] = $row);
+    //echo'<pre>';
+    //print_r($data);
+    //echo'<pre>';// здесь будет массив с результатом
+    //$user1 = $data[0];
+    //print_r($user1);
+    //echo $user[]
+?> -->
+<!-- Давайте разберемся, как работает этот цикл.
+В каждой итерации цикла функция mysqli_fetch_assoc последовательно считывает каждую строку результата, 
+записывая его в массив $data.
+Как только в $res закончатся строки, то mysqli_fetch_assoc вернет NULL и цикл закончит свою работу. 
+А полученный результат будет лежать в двухмерном массиве $data. -->
+<!-- 
+Из полученного результата получите первого работника. Через echo выведите на экран его имя. 
+Из полученного результата получите второго работника. Через echo выведите на экран его имя и возраст.
+Из полученного результата получите третьего работника. Через echo выведите на экран его имя, возраст и зарплату.-->
+<!-- <?php
+	//for ($data = []; $row = mysqli_fetch_assoc($res); $data[] = $row);
+    //echo'<pre>';
+    //print_r($data);
+    //echo'<pre>';// здесь будет массив с результатом
+    $user1 = $data[0];
+    $user2 = $data[1];
+    $user3 = $data[2];
+    echo $user1['name'].'<br>';
+    echo 'name-'.$user2['name'].'age-'. $user2['age'].'<br>';
+    echo 'name-'.$user3['name'].'age-'. $user3['age'].'salary-'. $user3['salary'].'<br>';
+?> -->
+
+<!-- 327 Выборка записей при SQL запросе к базе в PHP -->
+
+<!-- В тестовом коде вы уже видели команду SELECT, выполняющую выборку данных из БД. 
+Давайте теперь подробнее разберемся с ее синтаксисом. Вот он: -->
+<?php
+	//$query = "SELECT * FROM таблица WHERE условие";
+?>
+<!-- Как вы видите, после имени таблицы можно еще дописать команду WHERE, 
+в которой можно писать ограничение на выбираемые записи. 
+В условии допустимы следующие операции сравнения: =, !=, <>, <, >, <=, >=.
+Давайте посмотрим их применение на примерах. -->
+
+<!-- Пример 
+Выберем юзера с id, равным 2:
+Выберем юзеров с id, большим 2:
+Выберем юзеров с id, большим или равным 2:
+Выберем юзеров с id, не равным 2:
+Вместо команды != можно писать команду <>:
+Выберем юзеров возрастом 23 года:
+Выберем юзеров с зарплатой 500: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE id=2";
+	//$query = "SELECT * FROM users WHERE id>2";
+	//$query = "SELECT * FROM users WHERE id>=2";
+	//$query = "SELECT * FROM users WHERE id!=2";
+	//$query = "SELECT * FROM users WHERE id<>2";
+	//$query = "SELECT * FROM users WHERE age=23";
+	//$query = "SELECT * FROM users WHERE salary=500";
+?> -->
+<!-- Пример 
+Выберем юзера с именем 'user1'. Здесь нас поджидает важный нюанс: 
+так как имя является строкой, то его необходимо взять в кавычки: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE name='user1'";
+?> -->
+<!-- Пример 
+Если команда WHERE отсутствует, то выберутся все записи из таблицы. Давайте выберем всех работников: -->
+<!-- <?php
+	//$query = "SELECT * FROM users";
+?> -->
+
+<!-- Выберите юзера с id, равным 3.
+Выберите юзеров с зарплатой 900.
+Выберите юзеров в возрасте 23 года.
+Выберите юзеров с зарплатой более 400.
+Выберите юзеров с зарплатой равной или большей 500.
+Выберите юзеров с зарплатой НЕ равной 500.
+Выберите юзеров с зарплатой равной или меньшей 500. -->
+<!-- <?php
+//$query = "SELECT * FROM users WHERE id=3"
+//$query = "SELECT * FROM users WHERE age=23"
+//$query = "SELECT * FROM users WHERE salary>400"
+//$query = "SELECT * FROM users WHERE salaru >=500"
+//$query = "SELECT * FROM users WHERE salaru !=500"
+?> -->
+
+<!-- 328 Логические операции в SQL запросе в PHP -->
+
+<!-- В условии выборки можно делать более сложные комбинации с помощью команд OR и AND. 
+Работают они так же, как и их аналоги в PHP конструкции if. Давайте посмотрим на примерах.
+Выберем юзеров с зарплатой 500 И возрастом 23 года: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE salary=500 AND age=23";
+?> -->
+
+<!-- Выберем юзеров с зарплатой 500 ИЛИ возрастом 23 года: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE salary=500 OR age=23";
+?> -->
+
+<!-- Выберем юзеров с зарплатой от 450 до 900: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE salary>450 AND salary<900";
+?> -->
+
+<!-- Выберем юзеров с возрастом от 23 до 27 лет включительно: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE age>=23 AND age<=27";
+?> -->
+
+<!-- Сложные комбинации команд OR и AND можно группировать с помощью круглых скобок, чтобы показать приоритет условий: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE (age<20 AND age>27) OR (salary>300 AND salary<500)";
+?> -->
+
+<!-- Выберите юзеров в возрасте от 25 (не включительно) до 28 лет (включительно).
+Выберите юзера user1.
+Выберите юзеров user1 и user2.
+Выберите всех, кроме юзера user3.
+Выберите всех юзеров в возрасте 27 лет или с зарплатой 1000.
+Выберите всех юзеров в возрасте 27 лет или с зарплатой не равной 400.
+Выберите всех юзеров в возрасте от 23 лет (включительно) до 27 лет (не включительно) или с зарплатой 1000.
+Выберите всех юзеров в возрасте от 23 лет до 27 лет или с зарплатой от 400 до 1000. -->
+
+<?php
+//$query = "SELECT * FROM users WHERE age>25 AND age<=28";
+//$query = "SELECT * FROM users WHERE name = 'user1'";
+//$query = "SELECT * FROM users WHERE name = 'user1' AND name = 'user1'";
+//$query = "SELECT * FROM users WHERE name != 'user3'";
+//$query = "SELECT * FROM users WHERE age = 27 OR salary = 1000";
+//$query = "SELECT * FROM users WHERE age = 27 OR salary != 400";
+//$query = "SELECT * FROM users WHERE (age >=23 AND age >=27) OR salary = 1000";
+//$query = "SELECT * FROM users WHERE (age >=23 AND age >=27) OR (salary > 400 AND salary > 1000)";
+?>
+
+
+
+<!-- 329 Поля выборки при SQL запросе в PHP -->
+<!-- 
+В предыдущих уроках при выборке из БД в результат попадали все столбцы таблицы. 
+Это на самом деле не обязательно - можно указать, какие конкретно поля нам нужны.
+Для этого вместо звездочки, которую мы ставим после команды SELECT, через запятую можно перечислить имена нужных полей.
+Посмотрим на примере. Давайте при выборке из нашей таблицы users достанем только имя и возраст работника: -->
+
+<!-- <?php
+	//$query = "SELECT name, age FROM users WHERE id >= 3";
+?> -->
+
+<!-- Выберите из таблицы users имя, возраст и зарплату для каждого работника.
+Выберите из таблицы users имена всех работников. -->
+
+<!-- <?php
+	$host = 'localhost'; // имя хоста
+	$user = 'root';      // имя пользователя
+	$pass = '';          // пароль
+	$name = 'mydb';      // имя базы данных
+	
+	$link = mysqli_connect($host, $user, $pass, $name);
+	mysqli_query($link, "SET NAMES 'utf8'");
+	
+	$query1 = "SELECT name FROM users WHERE id >= 3";
+	$res = mysqli_query($link, $query1) or die(mysqli_error($link));
+	for ($data = []; $row = mysqli_fetch_assoc($res); $data[] = $row);
+    echo'<pre>';
+    print_r($data);
+    echo'<pre>';
+?> -->
+<!-- 
+330 Вставка записей через SQL запрос в PHP -->
+
+<!-- Давайте теперь научимся добавлять новые записи в таблицу. 
+Это делается с помощью команды INSERT INTO. Она имеет следующий синтаксис: -->
+<!-- <?php
+	//$query = "INSERT INTO таблица (поле1, поле2...) VALUES (значение1, значение2...)";
+?> -->
+
+<!-- Давайте в нашу таблицу users добавим нового юзера: -->
+<!-- <?php
+	//$query = "INSERT INTO users (name, age, salary) VALUES ('user7', 30, 1000)";
+?> -->
+
+<!-- Может быть не очень очевидно, что результат вставки нам не нужно обрабатывать через mysqli_fetch_assoc. 
+Нам нужно просто выполнить этот запрос через mysqli_query, а результат вставки нужно смотреть через PhpMyAdmin:
+
+Обратите также внимание на то, что при вставке мы не указываем столбец id и его значение. И это правильно, так как значение этого столбца проставится базой автоматически.
+Добавьте нового юзера 'user7', 26 лет, зарплата 300. -->
+// <?php
+// 	$query = "INSERT INTO users (name, age, salary) VALUES ('user7', 26, 300)";
+// 	mysqli_query($link, $query) or die(mysqli_error($link));
+	
+// ?>
+
+
+<!-- 331 Вставка записей при отсутствующих столбцах через SQL запрос в PHP -->
+<!-- S -->
+<!-- <?php
+	//$query = "INSERT INTO users (name, age) VALUES ('user333', 20)";
+	//mysqli_query($link, $query) or die(mysqli_error($link));
+?> -->
+<!-- В таком случае не указанные столбцы возьмут значение по умолчанию. 
+Если такое значение не указано в PhpMyAdmin, то это приведет к ошибке и такой запрос откажется выполнятся. -->
+
+<!-- 
+332 Обновление записей через SQL запрос в PHP -->
+
+<!-- Давайте поменяем возраст и зарплату юзера: -->
+<!-- <?php
+	//$query = "UPDATE users SET age=20, salary=800 WHERE id=1";
+?> -->
+
+<!-- Установим зарплату 400 и возраст 24 всем юзерам в возрасте 23: -->
+<!-- <?php
+	//$query = "UPDATE users SET age=24, salary=300 WHERE age=23";
+?> -->
+
+<!-- Без команды WHERE обновления захватят всю таблицу. Например, установим всем юзерам зарплату 400 и возраст 24: -->
+<!-- <?php
+	//$query = "UPDATE users SET age=24, salary=300";
+?> -->
+
+<!-- <?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+	//$query3 = "UPDATE users SET age=24, salary=300";
+	//mysqli_query($link, $query3) or die(mysqli_error($link));
+?> -->
+
+<!-- Юзеру с id 4 поставьте возраст 35 лет.
+Всем, у кого зарплата 500, сделайте ее 700.
+Работникам с id больше 2 и меньше 5 включительно поставьте возраст 23. -->
+<!-- <?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+	//$query4 = "UPDATE users SET age=35 WHERE id=4";
+	//mysqli_query($link, $query4) or die(mysqli_error($link));
+	//$query5 = "UPDATE users SET salary = 750 WHERE salary = 500";
+	//mysqli_query($link, $query5) or die(mysqli_error($link));
+	//$query6 = "UPDATE users SET age = 23 WHERE id > 2 AND id < 5";
+	//mysqli_query($link, $query6) or die(mysqli_error($link));
+?> -->
+
+<!-- 333 Удаление записей через SQL запрос в PHP -->
+
+<!-- С помощью команды DELETE можно удалять записи из таблицы. Ее синтаксис похож на изученное вами ранее: -->
+<?php
+	//$query = "DELETE FROM таблица WHERE условие";
+?>
+
+<!-- Удалите юзера с id, равным 7.
+Удалите всех юзеров, у которых возраст 23 года.
+Удалите всех юзеров. -->
+
+<!-- <?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+	//$query7 = "DELETE FROM users WHERE id =7";
+	//mysqli_query($link, $query7) or die(mysqli_error($link));
+	//$query8 = "DELETE FROM users WHERE age =23";
+	//mysqli_query($link, $query8) or die(mysqli_error($link));
+	//$query9 = "DELETE FROM users";
+	//mysqli_query($link, $query9) or die(mysqli_error($link));
+?>  -->
+<!-- 
+334 Сортировка записей через SQL запрос в PHP -->
+
+<!-- С помощью команды ORDER BY можно сортировать строки результата. 
+Выберем из нашей таблицы users всех юзеров и отсортируем их по возрасту от меньшего к большему: -->
+<!-- <?php
+	//$query = "SELECT * FROM users ORDER BY age";
+?> -->
+
+<!-- Поменяем порядок сортировки с помощью команды DESC: -->
+<!-- <?php
+	//$query = "SELECT * FROM users ORDER BY age DESC";
+?> -->
+
+<!-- Выберем всех юзеров с зарплатой 500 и отсортируем их по возрасту от меньшего к большему: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE salary=500 ORDER BY age";
+?> -->
+
+<!-- Можно сортировать не по одному полю, а по нескольким. 
+Давайте для примера выберем всех юзеров и отсортируем их сначала по возрастанию возраста, 
+а юзеров с одинаковыми возрастами отсортируем по возрастанию зарплаты: -->
+<!-- <?php
+	//$query = "SELECT * FROM users ORDER BY age, salary";
+?> -->
+
+<!-- Достаньте всех юзеров и отсортируйте их по возрастанию зарплаты.
+Достаньте всех юзеров и отсортируйте их по убыванию зарплаты.
+Достаньте всех юзеров и отсортируйте их по имени.
+Достаньте юзеров с зарплатой 500 и отсортируйте их по возрасту.
+Достаньте всех юзеров и отсортируйте их по имени и по зарплате. -->
+<!-- 
+<?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+
+	//$query10 = "SELECT * FROM users ORDER BY salary ASC";
+	//mysqli_query($link, $query10) or die(mysqli_error($link));
+?> -->
+
+<!-- 335 Ограничение количества записей в SQL в PHP -->
+
+<!-- С помощью команды LIMIT мы можем ограничить количество строк в результате.
+Выберем первых двух юзеров: -->
+<?php
+	//$query = "SELECT * FROM users LIMIT 2";
+?>
+
+<!-- Выберем всех юзеров с зарплатой 500, а затем с помощью LIMIT возьмем только первых двух из выбранных: -->
+<?php
+	//$query = "SELECT * FROM users WHERE salary=500 LIMIT 2";
+?>
+
+<!-- С помощью LIMIT можно выбрать несколько строк из середины результата. 
+В примере ниже мы выберем со второй строки (нумерация строк с нуля), 5 штук: -->
+<?php
+	//$query = "SELECT * FROM users LIMIT 1,5";
+?>
+
+<!-- Команду LIMIT можно комбинировать с ORDER BY. 
+ При этом сначала нужно писать команду сортировки, а потом - лимит. 
+В следующем примере мы сначала отсортируем записи по возрастанию возраста, а потом возьмем первые 3 штуки: -->
+<?php
+	//$query = "SELECT * FROM users ORDER BY age LIMIT 3";
+?>
+
+
+<!-- Получите первых 4 юзера.
+Получите юзеров со второго, 3 штуки.
+Отсортируйте юзеров по возрастанию зарплаты и получите первых 3 работника из результата сортировки.
+Отсортируйте юзеров по убыванию зарплаты и получите первых 3 юзера из результата сортировки. -->
+<!-- <?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+
+	//$query2 = "SELECT * FROM users ORDER BY id ASC LIMIT 1,3";
+	//$res = mysqli_query($link, $query2) or die(mysqli_error($link));
+	//for ($data = []; $row = mysqli_fetch_assoc($res); $data[] = $row);
+    //echo'<pre>';
+    //print_r($data);
+    //echo'<pre>';
+?> -->
+
+<!-- 336 Подсчет количества через SQL запрос в PHP -->
+
+<!-- С помощью команды COUNT можно подсчитать количество строк в выборке.
+Давайте, например, подсчитаем всех юзеров в таблице: -->
+
+<!-- <?php
+	//$query = "SELECT COUNT(*) FROM users";
+?> -->
+
+<!-- А теперь подсчитаем всех, у кого зарплата равна 900: -->
+<!-- <?php
+	//$query = "SELECT COUNT(*) FROM users WHERE salary=900";
+?> -->
+
+<?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+
+	//$query2 = "SELECT COUNT(*) FROM users WHERE salary=1300";
+	//$res = mysqli_query($link, $query2) or die(mysqli_error($link));
+	//for ($data = []; $row = mysqli_fetch_assoc($res); $data[] = $row);
+    //echo'<pre>';
+    //print_r($data);
+    //echo'<pre>';
+?>
+
+<!-- 337 Получение количества в PHP -->
+
+<!-- Давайте посмотрим, как получить подсчитанное количество в нашем PHP скрипте, так как тут не все так просто.
+Напишем код, подчитывающий количество юзеров: -->
+
+<!-- <?php
+	//$query = "SELECT COUNT(*) FROM users";
+	//$res = mysqli_query($link, $query) or die(mysqli_error($link));
+	//$data = mysqli_fetch_assoc($res);
+?> -->
+<!-- В нашем случае получится, что количество попадет в переменную $data. 
+Однако, эта переменная будет представлять собой массив следующего вида: -->
+<!-- <?php
+	//var_dump($data); // ['COUNT(*)' => 6]
+?> -->
+
+<!-- Для того, чтобы ключ в этом массиве был более красивый, можно переименовать наше поле в запросе с помощью команды as: -->
+<!-- <?php
+	//$query = "SELECT COUNT(*) as count FROM users";
+?> -->
+
+<!-- После такого переименования в переменной $data наше количество уже будет лежать в ключе 'count': -->
+<!-- <?php
+	//var_dump($data); // ['count' => 6]
+?> -->
+
+<!-- <?php
+	//$query = "SELECT COUNT(*) as count FROM users WHERE salary = 500 AND age = 23";
+	//$res = mysqli_query($link, $query) or die(mysqli_error($link));
+	//$data = mysqli_fetch_assoc($res);
+	//echo'<pre>';
+    //print_r($data);
+    //echo'<pre>';
+?> -->
+
+<!-- 338 Изучение продвинутых SQL запросов -->
+
+<!-- В предыдущих уроках вы изучили наиболее используемые команды. 
+Конечно же, их намного больше и найти вы их можете в справочнике SQL. 
+При изучении справочника особое внимание обратите на команды IN, MIN, MAX, GROUP BY, CONCAT, а также на функции для работы с датой.
+Изучите справочник SQL. Отдельные команды попробуйте в вашем коде. Параллельно двигайтесь дальше по учебнику PHP. -->
+
+ <!-- 340 Получении данных из связанных таблиц в PHP -->
+
+<!-- Давайте сделаем запрос, который достанет всех юзеров вместе с их городами. Для этого нам понадобится команда LEFT JOIN:
+Ее синтаксис выглядит следующим образом:
+
+SELECT поля FROM имя_таблицы
+	LEFT JOIN имя_связанной_таблицы ON условие_связи 
+WHERE условие_выборки
+Давайте разберем отдельные части синтаксиса этой команды.
+
+Поля
+Так как выборка идет из нескольких таблиц, то выборка всех полей через * не будет работать. 
+Следующий запрос выберет поля только из основной таблицы, но не из связанной:
+
+SELECT *
+Для того, чтобы данные выбирались из всех таблиц, нужно перед * указать имя таблицы для выборки:
+
+SELECT users.*, cities.*
+Либо можно перечислить нужные нам поля с указанием имени таблицы перед ними:
+
+SELECT users.name, cities.name
+Эти два способа имеют проблему. Дело в том, что если поля в таблицах имеют одинаковые имена, 
+то в массиве PHP произойдет конфликт имен и победит только одно поле, а второго не будет.
+
+Для решения проблемы нужно конфликтные имена переименовывать через команду as:
+SELECT users.name, cities.name as city_name
+Связь
+После команды ON мы должны указать поля из двух таблиц, по которым осуществляется связь. 
+В нашем случае это будет поле id из таблицы с городами и поле city_id из таблицы с юзерами:
+
+ON cities.id=users.city_id
+Запрос
+В итоге запрос, который достанет юзеров вместе с их городами будет выглядеть следующим образом: -->
+<!-- <?php
+	//$host = 'localhost'; // имя хоста
+	//$user = 'root';      // имя пользователя
+	//$pass = '';          // пароль
+	//$name = 'mydb';      // имя базы данных
+	//$link = mysqli_connect($host, $user, $pass, $name);
+	//mysqli_query($link, "SET NAMES 'utf8'");
+	//USE mydb;
+//SELECT 
+	//users.name, cities.name as city_name
+//FROM 
+	//users
+//LEFT JOIN cities ON cities.id=users.city_id
+
+//SELECT products.name, category.name as categori_name FROM products LEFT JOIN category ON category.id=products.category_id;
+?> -->
+
+<!-- 341 Цепочка связанных таблиц -->
+
+<!-- Пусть теперь юзеры живут в определенных городах, а эти города расположены в разных странах. 
+В таком случае для хранения нам понадобятся уже три таблицы: юзеры будут связаны с городами, 
+а города - со странами. При этом нам не нужно будет поле связи юзеров со странами - ведь юзеры 
+и так будут связаны со странами через связь городов и стран.
+Давайте посмотрим на наши таблицы. Таблица со странами: -->
+
+<!-- Запросы
+Для того, чтобы достать юзеров вместе с их городами и странами, нам придется сделать два джоина: 
+первый присоединит города к юзерам, а второй - страны к городам: -->
+<!-- <?php
+
+//SELECT 
+//users.name, 
+//cities.name as city_name, 
+//country.name as country_name 
+//FROM 
+//users 
+//LEFT JOIN cities ON cities.id=users.city_id 
+//LEFT JOIN country ON country.id=cities.country_id;
+?> -->
+
+<!-- 342 Связывание через таблицу связи в PHP -->
+
+<!-- Пусть теперь юзер был в разных городах. 
+В этом случае таблица с юзерами могла бы иметь следующий вид: -->
+
+<!-- Нам понадобится ввести так называемую таблицу связи, которая будет связывать юзера с его городами.
+В каждой записи этой таблицы будет хранится связь между юзером и одним городом. 
+При этом для одного юзера в этой таблице будет столько записей, в скольки городах он был.
+users_cities -->
+
+<!-- Запросы
+Давайте сделаем запрос, с помощью которого вытащим юзеров вместе с их городами. 
+Для этого нам понадобится сделать два джоина: первый джоин присоединит к юзерам таблицу связи, 
+а второй джоин по связям присоединит города: -->
+<!-- <?php
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'mydb';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+
+// $query = "SELECT
+// 	users.name as user_name, cities.name as city_name
+// FROM
+// 	users
+// LEFT JOIN users_cities ON users_cities.user_id=users.id
+// LEFT JOIN cities ON users_cities.city_id=cities.id";
+
+// $res = mysqli_query($link, $query) or die(mysqli_error($link));
+// $data = mysqli_fetch_assoc($res);
+
+// for ($data=[]; $elem = mysqli_fetch_assoc($res); $data[] = $elem) {
+// 	echo '<pre>';
+//  	print_r($elem);
+//  	echo '<pre>';
+//  }
+?>  -->
+
+<!-- Результат запроса
+Результат нашего запроса в PHP будет содержать имя каждого юзера столько раз, со скольки городами он связан: -->
+
+<!-- <?php
+	// $arr = [
+	// 	['user_name' => 'user1', 'city_name' => 'city1'],
+	// 	['user_name' => 'user1', 'city_name' => 'city2'],
+	// 	['user_name' => 'user1', 'city_name' => 'city3'],
+	// 	['user_name' => 'user2', 'city_name' => 'city1'],
+	// 	['user_name' => 'user2', 'city_name' => 'city2'],
+	// 	['user_name' => 'user3', 'city_name' => 'city2'],
+	// 	['user_name' => 'user3', 'city_name' => 'city3'],
+	// 	['user_name' => 'user4', 'city_name' => 'city1'],
+	// ];
+?> -->
+<!-- Удобнее было бы переконвертировать такой массив и превратить его в следующий: -->
+<!-- <?php
+	// $res = [
+	// 	['user1' => ['city1', 'city2', 'city3']],
+	// 	['user2' => ['city1', 'city2']],
+	// 	['user3' => ['city2', 'city3']],
+	// 	['user4' => ['city1']],
+	// ];
+?>   -->
+<!-- Напишем код, выполняющий такую конвертацию: -->
+ <!-- <?php
+	// $res = [];
+	// foreach ($data as $elem) {
+		//$res[$elem['user_name']][] = $elem['city_name'];
+		
+	//}
+	//print_r($res);
+?>  -->
+
+<!-- 343 Родственные связи данных в PHP -->
+
+<!-- Пусть перед нами стоит задача хранить отцов и сыновей. Пусть каждый отец может иметь только одного сына, 
+а сын в свою очередь тоже может иметь одного сына.
+Нужно придумать, как мы будем хранить данные. Первая идея, которая может прийти в голову - 
+сделать две таблицы: parents для отцов и sons для сыновей. 
+Затем связать эти таблицы каким-нибудь полем: son_id или parent_id.
+Однако, это идея не очень хорошая - ведь один и тот же человек 
+может быть одновременно и отцом и сыном - и придется хранить его в обоих таблицах, 
+а это неудобно, занимает больше место и легко приводит к ошибкам.
+Более хороший вариант - связать таблицу саму с собой: сделаем таблицу users, 
+в ней будем хранить всех юзеров и каждому сделаем поле son_id, в котором будет храниться id сына из этой же таблицы: -->
+
+<!-- Соберем все вместе и получим следующий запрос: -->
+<!-- <?php
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'mydb';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+// $query = "SELECT
+// 	users.name as user_name, sons.name as son_name
+// FROM
+// 	users
+// LEFT JOIN users as sons ON sons.id=users.son_id";
+
+// $res = mysqli_query($link, $query) or die(mysqli_error($link));
+// $data = mysqli_fetch_assoc($res);
+// for ($data=[]; $elem = mysqli_fetch_assoc($res); $data[] = $elem) {
+// 	echo '<pre>';
+// 	print_r($elem);
+// 	echo '<pre>';
+//  }
+?> -->
+
+<!-- 344 Несколько потомков в родственных связях в PHP -->
+<!-- 
+В предыдущем уроке отец мог иметь только одного сына. 
+Это достигалось за счет того, что у отца была связь son_id.
+Пусть теперь отец может иметь несколько сыновей. 
+В этом случае мы по-прежнему можем сделать только одну таблицу, которая будет связана сама с собой. 
+Только в поле связи будем хранить не id сына, а id отца. 
+В этом случае несколько юзеров смогут сослаться на своего отца - и тем самым отец будет иметь несколько сыновей: -->
+
+<!-- <?php
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'mydb';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+
+// $query = "SELECT
+//     users.name AS user_name,
+//     fathers.name AS father_name,
+//     mama.name AS mama_name
+// FROM
+//     users
+// LEFT JOIN users AS fathers
+// ON
+//     fathers.id = users.father_id
+// LEFT JOIN users AS mama
+// ON
+//     mama.id = users.mama_id";
+
+// $res = mysqli_query($link, $query) or die(mysqli_error($link));
+// $data = mysqli_fetch_assoc($res);
+// for ($data=[]; $elem = mysqli_fetch_assoc($res); $data[] = $elem) {
+// 	echo '<pre>';
+// 	print_r($elem);
+// 	echo '<pre>';
+//  }
+ 
+?> -->
+
+<!-- 345 Двойная связь с одной таблицей в PHP -->
+
+<!-- Пусть у нас есть города:
+cities
+id	name
+1	city1
+2	city2
+3	city3
+
+Пусть у нас есть маршруты между городами, при этом каждый маршрут имеет город начала и город конца:
+routes
+id	name	from_city_id	to_city_id
+1	route1	1	2
+2	route2	2	3
+
+Пусть мы хотим получить маршруты вместе с городами. 
+Сложность здесь представляет то, что каждый маршрут имеет два города: начало и конец.
+Получается, что таблицу с городами нужно джойнить два раза. При каждом джоине таблицу придется переименовать: -->
+ <!-- <?php
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'mydb';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+
+// $query = "SELECT from_cities.name as from_city_name, to_cities.name as to_city_name 
+// FROM routes 
+// LEFT JOIN cities as from_cities ON from_cities.id=routes.from_city_id 
+// LEFT JOIN cities as to_cities ON to_cities.id=routes.to_city_id";
+// $res = mysqli_query($link, $query) or die(mysqli_error($link));
+// $data = mysqli_fetch_assoc($res);
+// for ($data=[]; $elem = mysqli_fetch_assoc($res); $data[] = $elem) {
+// 	echo '<pre>';
+// 	print_r($elem);
+// 	echo '<pre>';
+//  }
+ 
+?>  -->
+
+<!-- 346 Практика на организацию баз данных -->
+
+<!-- В следующих задачах вам нужно раписать структуру таблиц: их имена и поля.
+Блог, в нем статьи. Статьи разбиты на категории. К статьям юзеры оставляют комментарии. -->
+
+<!-- <?php
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'blog';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+
+// //$query = "SELECT story.name AS story_name, category.name as category_name FROM story LEFT JOIN category ON category.ID = story.id_category";
+// $query = "SELECT COMMENT .name AS comment_name, subscr.name AS subscr_name, story.name AS story_name FROM COMMENT 
+// LEFT JOIN subscr ON COMMENT .subscr_id = subscr.id LEFT JOIN story ON comment.story_id = story.id;";
+// $res = mysqli_query($link, $query) or die(mysqli_error($link));
+// $data = mysqli_fetch_assoc($res);
+// for ($data=[]; $elem = mysqli_fetch_assoc($res); $data[] = $elem) {
+// 	echo '<pre>';
+// 	print_r($elem);
+// 	echo '<pre>';
+//  }
+ 
+?>  -->
+
+<!-- 348 Оформление вывода из базы данных в PHP -->
+
+<!-- Вы уже умеете получать данные из базы данных. Давайте выведем теперь такие данные, оформив их тегами.
+Например, записи нашей тестовой таблицы users выведем в следующем виде: -->
+<!-- <p>
+	<b>user1</b>
+	<b>23</b>
+	<b>400</b>
+</p>
+<p>
+	<b>user2</b>
+	<b>24</b>
+	<b>500</b>
+</p>
+<p>
+	<b>user3</b>
+	<b>25</b>
+	<b>600</b>
+</p> -->
+<!-- Для начала давайте получим массив записей из нашей базы данных: -->
+
+<!-- <?php
+	// $host = 'localhost'; // имя хоста
+	// $user = 'root';      // имя пользователя
+	// $pass = '';          // пароль
+	// $name = 'mydb';      // имя базы данных
+	// $link = mysqli_connect($host, $user, $pass, $name);
+	// mysqli_query($link, "SET NAMES 'utf8'");
+	// $query = "SELECT * FROM users";
+	// $result = mysqli_query($link, $query) or die(mysqli_error($link));
+	// for ($data = []; $row = mysqli_fetch_assoc($result); $data[] = $row);
+?> -->
+<!-- Выведем теперь данные нашего массива в оформленном виде: -->
+
+<!-- <?php
+	// $result = '';
+	
+	// foreach ($data as $elem) {
+	// 	$result .= '<p>';
+		
+	// 	$result .= '<b>' . $elem['name'] . '</b>';
+	// 	$result .= '<b>' . $elem['age'] . '</b>';
+	// 	$result .= '<b>' . $elem['salary'] . '</b>';
+		
+	// 	$result .= '</p>';
+	// }
+	
+	// echo $result;
+?> -->
+
+<!-- Можно переписать и в следующем виде: -->
+<!-- <?php foreach ($data as $elem): ?>
+	<p>
+		<b><?= $elem['name'] ?></b>
+		<b><?= $elem['age'] ?></b>
+		<b><?= $elem['salary'] ?></b>
+	</p>
+<?php endforeach; 
+?> -->
+
+<!-- Выведите записи нашей таблицы в следующем виде:
+<div>
+	<h2>user1</h2>
+	<p>
+		23 years, <b>400$</b>
+	</p>
+</div>
+<div>
+	<h2>user2</h2>
+	<p>
+		24 years, <b>500$</b>
+	</p>
+</div>
+<div>
+	<h2>user3</h2>
+	<p>
+		25 years, <b>600$</b>
+	</p>
+</div> -->
+
+<!-- <?php foreach ($data as $elem): ?>
+	<div>
+		<h2><?= $elem['name'] ?></h2>
+		<p><?= $elem['age'].'years' ?>
+		<b><?= $elem['salary']. '$'?></b></p>
+</div>
+<?php endforeach; 
+?> -->
+
+<!-- Выведите записи нашей таблицы в следующем виде: -->
+<!-- 
+<table>
+	<tr>
+		<th>id</th>
+		<th>name</th>
+		<th>age</th>
+		<th>salary</th>
+	</tr>
+	<?php foreach ($data as $elem): ?>
+	<tr>
+		<td><?= $elem['id'] ?></td>
+		<td><?= $elem['name'] ?></td>
+		<td><?= $elem['age'] ?></td>
+		<td><?= $elem['salary'] ?></td>
+	</tr>
+<?php endforeach; 
+?> -->
+
+<!-- 349 Удаление данных из БД с помощью GET запросов -->
+
+<!-- Давайте теперь будем удалять записи из базы данных, передавая id для их удаления через GET параметры.
+Пусть у нас передается GET параметр с именем del. Давайте получим получим id для удаления в переменную: -->
+
+<?php
+	$del = $_GET['del'];
+?>
+
+<!-- Сформируем запрос на удаление: -->
+<!-- <?php
+	//$query = "DELETE FROM users WHERE id=$del";
+?> -->
+<!-- Удалим запись из базы данных: -->
+
+<!-- <?php
+	//mysqli_query($link, $query) or die(mysqli_error($link));
+?> -->
+
+<!-- <?php
+	// $host = 'localhost'; // имя хоста
+	// $user = 'root';      // имя пользователя
+	// $pass = '';          // пароль
+	// $name = 'mydb';      // имя базы данных
+	// $link = mysqli_connect($host, $user, $pass, $name);
+	// mysqli_query($link, "SET NAMES 'utf8'");
+	// $query2 = "DELETE FROM users WHERE id=$del";
+	// $query = "SELECT * FROM users";
+	// $result = mysqli_query($link, $query2) or die(mysqli_error($link));
+	// $result = mysqli_query($link, $query) or die(mysqli_error($link));
+	// for ($data = []; $row = mysqli_fetch_assoc($result); $data[] = $row);
+?> -->
+
+<!-- Модифицируйте предыдущую задачу так, чтобы у вас был следующий HTML код: -->
+<!-- <table>
+	<tr>
+		<th>id</th>
+		<th>name</th>
+		<th>age</th>
+		<th>salary</th>
+		<th>delete</th>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>user1</td>
+		<td>23</td>
+		<td>400</td>
+		<td><a href="?del=1">удалить</a></td>
+	</tr>
+	<tr> -->
+
+<!-- <table>
+	<tr>
+		<th>id</th>
+		<th>name</th>
+		<th>age</th>
+		<th>salary</th>
+		<th>delete</th>
+	</tr>
+	<?php foreach ($data as $elem): ?>
+	<tr>
+		<td><?= $elem['id'] ?></td>
+		<td><?= $elem['name'] ?></td>
+		<td><?= $elem['age'] ?></td>
+		<td><?= $elem['salary'] ?></td>
+		<td><a href="?del=<?= $elem['id'] ?>">удалить</a></td>
+	</tr>
+<?php endforeach; 
+?>
+<table> -->
+
+<!-- 350 Просмотр данных из БД в PHP -->
+
+<!-- Давайте сделаем страницу show.php, на которой можно будет посмотреть данные юзера, оформленные в определенную верстку.
+Пусть для этого у нас дана следующая верстка: -->
+
+<!-- <div>
+	<h1>user1</h1>
+	<p>
+		age: <span class="age">23</span>,
+		salary: <span class="salary">400</span>
+	</p>
+</div> -->
+
+<!-- Пусть id юзера, которого мы хотим просмотреть, передается через GET параметр с именем id. 
+Получим его в переменную: -->
+<!-- <?php
+	// $id = $_GET['id'];
+    // $host = 'localhost'; // имя хоста
+    // $user = 'root';      // имя пользователя
+    // $pass = '';          // пароль
+    // $name = 'mydb';      // имя базы данных
+    // $link = mysqli_connect($host, $user, $pass, $name);
+    // mysqli_query($link, "SET NAMES 'utf8'");
+    // $query = "SELECT * FROM users";
+	// $query2 = "SELECT * FROM users WHERE id=$id";
+?>  -->
+
+<!-- Выполним запрос: -->
+<!-- <?php
+	// $result = mysqli_query($link, $query) or die(mysqli_error($link));
+    // $result2 = mysqli_query($link, $query2) or die(mysqli_error($link));
+	// for ($data = []; $row = mysqli_fetch_assoc($result); $data[] = $row);
+?> -->
+
+<!-- Запишем данные юзера в переменную: -->
+<!-- <?php
+	//$user = mysqli_fetch_assoc($result2);
+?> -->
+
+<!-- На странице index.php реализуйте вывод ссылок на просмотр каждого из юзеров: -->
+<!-- <a href="show.php?id=<?= $elem['id'] ?>"><?= $elem['name'] ?></a>
+<a href="show.php?id=2">user2</a>
+<a href="show.php?id=3">user3</a> -->
+
+<!-- <?php foreach ($data as $elem): ?>
+	<a href="show.php?id=<?= $elem['id'] ?>"><?= $elem['name'] ?></a>
+<?php endforeach; 
+?>  -->
+
+<!-- 351 Добавление новой записи в БД на PHP -->
+
+<!-- Давайте теперь сделаем страницу new.php для добавления нового юзера в нашу базу данных. 
+Сделаем для этого соответствующую форму: -->
+<!-- <form action="" method="POST">
+	<input name="name">
+	<input name="age">
+	<input name="salary">
+	<input type="submit">
+</form> -->
+
+<!-- После отправки формы сохраним ее данные в базу. Для начала поймаем сам момент отправки формы: -->
+<!-- <?php
+	//if (!empty($_POST)) {
+		// тут будет код обработки формы
+	//}
+?> -->
+
+<!-- Внутри условия получим наши данные в переменные: -->
+<!-- <?php
+	// $name = $_POST['name'];
+	// $age = $_POST['age'];
+	// $salary = $_POST['salary'];
+?> -->
+
+<!-- Сформируем запрос на вставку данных: -->
+<!-- <?php
+	//$query = "INSERT INTO users SET name='$name', age='$age', salary='$salary'";
+?> -->
+
+<!-- Выполним этот запрос: -->
+<!-- <?php
+	//mysqli_query($link, $query) or die(mysqli_error($link));
+?> -->
+
+<!-- <form action="" method="POST">
+	<input name="name_user" value="<?php if (isset($_POST['name_user'])) echo $_POST['name_user'] ?>">
+	<input name="age">
+	<input name="salary">
+	<input type="submit">
+</form> -->
+
+<!-- После отправки формы сохраним ее данные в базу. Для начала поймаем сам момент отправки формы: -->
+ <!-- Внутри условия получим наши данные в переменные: -->
+<!-- <?php
+	// if (!empty($_POST)) {
+    //     $name_user = $_POST['name_user'];
+    //     $age = $_POST['age'];
+    //     $salary = $_POST['salary'];
+	// }
+?> -->
+
+<!-- Сформируем запрос на вставку данных: -->
+<!-- <?php
+// $id = $_GET['id'];
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'mydb';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+// //$query = "SELECT * FROM users";
+// $query2 = "INSERT INTO users SET name_user='$name_user', age='$age', salary='$salary'";
+?> -->
+
+<!-- Выполним этот запрос: -->
+<?php
+	//mysqli_query($link, $query2) or die(mysqli_error($link));
+    //mysqli_query($link, $query) or die(mysqli_error($link));
+    //for ($data = []; $row = mysqli_fetch_assoc($result); $data[] = $row);
+?>
+
+<!-- 352 Редактирование записи в БД на PHP -->
+
+<!-- Давайте теперь реализуем редактирование юзера. Для этого нам понадобится две страницы: страница edit.php, 
+на которой будет размещаться форма для редактирования юзера, и страница save.php, 
+на которую форма будет отправляться для последующего сохранения.
+Страница редактирования
+Для начала на странице edit.php сделаем форму: -->
+<!-- <form action="" method="POST">
+	<input name="name">
+	<input name="age">
+	<input name="salary">
+	<input type="submit">
+</form> -->
+
+<!-- В эту форму мы будем загружать текущее данные юзера из базы данных. 
+Пусть id юзера для редактирования передается в GET параметре: -->
+<!-- <?php
+	//$id = $_GET['id'];
+?> -->
+
+<!-- Сформируем запрос на получение юзера: -->
+<!-- <?php
+	//$query = "SELECT * FROM users WHERE id=$id";
+?> -->
+
+<!-- Выполним запрос: -->
+<!-- <?php
+	//$result = mysqli_query($link, $query) or die(mysqli_error($link));
+?> -->
+
+<!-- Получим данные юзера в переменную: -->
+<!-- <?php
+	//$user = mysqli_fetch_assoc($result);
+?> -->
+
+<!-- Выведем эти данные в нашей форме: -->
+<!-- <form method="POST">
+	<input name="name" value="<?= $user['name'] ?>">
+	<input name="age" value="<?= $user['age'] ?>">
+	<input name="salary" value="<?= $user['salary'] ?>">
+	<input type="submit">
+</form> -->
+
+<!-- 
+Поменяем action формы так, чтобы она отправлялась на страницу save.php: -->
+<!-- <form action="save.php" method="POST"> -->
+
+<!-- При этом GET параметром будем передавать id юзера для редактирования: -->
+<!-- <form action="save.php?id=<?= $_GET['id'] ?>" method="POST"> -->
+<!-- 
+Страница сохранения
+На странице save.php получим отправленные данные: -->
+<!-- <?php
+	// $id = $_GET['id'];
+	// $name = $_POST['name'];
+	// $age = $_POST['age'];
+	// $salary = $_POST['salary'];
+?> -->
+
+<!-- Сформируем запрос на обновление: -->
+<!-- <?php
+	// $query = "UPDATE users SET
+	// 	name='$name', age='$age', salary='$salary'
+	// WHERE id=$id";
+?> -->
+
+<!-- Выполним запрос: -->
+<!-- <?php
+	//mysqli_query($link, $query) or die(mysqli_error($link));
+?> -->
+
+<!-- Вывыдем сообщение об успехе операции: -->
+<!-- <?php
+	//echo 'юзер успешно изменен!';
+?> -->
+
+ <!-- На странице save.php получим отправленные данные:  -->
+<!-- <?php
+	// $id = $_GET['id'];
+	// $name_user = $_POST['name_user'];
+	// $age = $_POST['age'];
+	// $salary = $_POST['salary'];
+?> -->
+
+<!-- Сформируем запрос на обновление: -->
+<!-- <?php
+// $host = 'localhost'; // имя хоста
+// $user = 'root';      // имя пользователя
+// $pass = '';          // пароль
+// $name = 'mydb';      // имя базы данных
+// $link = mysqli_connect($host, $user, $pass, $name);
+// mysqli_query($link, "SET NAMES 'utf8'");
+// $query = "SELECT * FROM users WHERE id=$id";
+// $result = mysqli_query($link, $query) or die(mysqli_error($link));
+// $user = mysqli_fetch_assoc($result);
+// print_r($user);
+// ?> -->
+
+<!-- <form action="update.php" method="POST">
+<input name="id" value="<?= $user['id'] ?>">
+	<input name="name_user" value="<?= $user['name_user'] ?>">
+	<input name="age" value="<?= $user['age'] ?>">
+	<input name="salary" value="<?= $user['salary'] ?>">
+	<input type="submit">
+</form> -->
+
+<form action = "edit.php" method = "POST">
+	<input name = "test1" value = "1">
+	<input name = "test2" value = "2">
+	<input type ="submit">
+</form>
