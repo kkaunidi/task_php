@@ -11691,3 +11691,39 @@ id	name	from_city_id	to_city_id
 	// 	unset($_SESSION['flash']);
 	// }
 ?> -->
+
+Смена пароля на PHP
+Смену пароля нельзя просто сделать в личном кабинете. Дело в том, что пользователь может оставить свой компьютер без присмотра (например, в офисе), будучи авторизованным на нашем сайте. В этом случае, если разрешить просто менять пароль, то злоумышленник-недоброжелатель сможет сменить пароль на другой, что, конечно же, очень плохо.
+
+Необходимо сделать так, чтобы смена пароля на новый требовала ввода старого пароля.
+
+Давайте реализуем страницу changePassword.php, зайдя на которую пользователь увидит форму с двумя инпутами - в первый он должен будет ввести свой старый пароль, а во вторую - новый:
+
+<form action="" method="POST">
+	<input name="old_password">
+	<input name="new_password">
+	<input type="submit" name="submit">
+</form>
+По нажатию на кнопку отправки мы должны сделать следующее:
+
+<?php
+	$id = $_SESSION['id']; // id юзера из сессии
+	$query = "SELECT * FROM users WHERE id='$id'";
+	
+	$res = mysqli_query($link, $query);
+	$user = mysqli_fetch_assoc($res);
+	
+	$hash = $user['password']; // соленый пароль из БД
+	$oldPassword = $_POST['old_password'];
+	$newPassword = $_POST['new_password'];
+	
+	// Проверяем соответствие хеша из базы введенному старому паролю
+	if (password_verify($oldPassword, $hash)) {
+		$newPasswordHash = password_hash($newPassword, PASSWORD_DEFAULT);
+		
+		$query = "UPDATE users SET password='$newPasswordHash' WHERE id='$id'";
+		mysqli_query($link, $query);
+	} else {
+		// старый пароль введен неверно, выведем сообщение
+	}
+?>
